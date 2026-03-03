@@ -1,0 +1,31 @@
+{
+  "scanner": {
+    "name": "Advanced XSS Scanner",
+    "version": "3.0.0",
+    "max_depth": 3,
+    "max_urls": 100,
+    "timeout": 30,
+    "threads": 10,
+    "delay": 0.5,
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+  },
+  "payloads": {
+    "enable_basic": true,
+    "enable_advanced": true,
+    "enable_polyglots": true,
+    "enable_blind": false,
+    "enable_waf_bypass": true
+  },
+  "detection": {
+    "check_reflection": true,
+    "check_execution": true,
+    "check_dom": true,
+    "check_headers": true,
+    "check_cookies": true
+  },
+  "output": {
+    "format": "html",
+    "save_responses": false,
+    "screenshots": false
+  }
+}
